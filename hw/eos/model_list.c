@@ -552,6 +552,11 @@ struct eos_model_desc eos_model_list[] = {
         .rom0_size              = 0x800000,     /* 8MB */
         .current_task_addr      = 0x803C,
         .card_led_address       = 0xD20B0994,
+// from ant branch, note digic 6 with 512MB RAM aliases every 0x20000000 up to 0xa0000000
+// so 0x80000000 is actually another uncached alias like 0x40000000
+// this avoids invalid write in zico initialization (zico_copy call fc537d16)
+        .ram_extra_addr[1]      = 0x80A00000,
+        .ram_extra_size[1]      = 0x00200000,
     },
     {
         .name                   = MODEL_NAME_EOSM10,
