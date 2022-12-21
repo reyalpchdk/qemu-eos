@@ -6127,11 +6127,19 @@ unsigned int eos_handle_digic6(unsigned int parm, unsigned int address, unsigned
             ret = 1;
             break;
 
+        case 0xD98000BC:
+            // LSB nonzero triggers assert on M3 and M10 Camif_ADC.c Line 300 (M3 fc1f3764)
+            if (strcmp(eos_state->model->name, MODEL_NAME_EOSM3) == 0 ||
+                strcmp(eos_state->model->name, MODEL_NAME_EOSM10) == 0) {
+                ret = 0;
+                break;
+            }
+            // otherwise fallthrough
         case 0xD7100014:
         case 0xD7100020:
         case 0xD7100000:
         case 0xD0740010:
-        case 0xD98000BC:
+//        case 0xD98000BC:
         case 0xDE000000:
         case 0xDE000014:
         case 0xDE000020:
