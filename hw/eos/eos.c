@@ -1800,6 +1800,7 @@ static void patch_200D(void)
 }
 #endif
 
+// note patches are for firmware 101a
 static void patch_EOSM3(void)
 {
     fprintf(stderr, "Patching 0xFCC637A8 (enabling TIO)\n");
@@ -1808,7 +1809,8 @@ static void patch_EOSM3(void)
 
     fprintf(stderr, "Patching 0xFC0F45B8 (InitExDrivers, locks up)\n");
     uint32_t bx_lr = 0x4770;
-    MEM_WRITE_ROM(0xFC0F45B8, (uint8_t*) &bx_lr, 2);
+// was in orignal patch, but causes io_readx assert at 0xfc0f45a2
+//    MEM_WRITE_ROM(0xFC0F45B8, (uint8_t*) &bx_lr, 2);
 
     fprintf(stderr, "Patching 0xFC1F455C (DcdcDrv, assert i2c)\n");
     MEM_WRITE_ROM(0xFC1F455C, (uint8_t*) &bx_lr, 2);
