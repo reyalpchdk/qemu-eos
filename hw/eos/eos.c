@@ -534,7 +534,9 @@ EOSRegionHandler eos_handlers[] =
     { "CFATA16",      0xC0700000, 0xC070FFFF, eos_handle_cfata, 0x10 },
     { "UART",         0xC0800000, 0xC08000FF, eos_handle_uart, 0 },
     { "UART",         0xC0810000, 0xC08100FF, eos_handle_uart, 1 },
-    { "UART",         0xC0270000, 0xC027000F, eos_handle_uart, 2 },
+//    { "UART",         0xC0270000, 0xC027000F, eos_handle_uart, 2 },
+// from https://bitbucket.org/Ant123/magiclantern_simplified/commits/6282ca80824a6feadd89e0f9fc4bc494f80133e6
+    { "UART",         0xC0270000, 0xC02700FF, eos_handle_uart, 2 },
     { "I2C",          0xC0090000, 0xC00900FF, eos_handle_i2c, 0 },
     { "SIO0",         0xC0820000, 0xC08200FF, eos_handle_sio, 0 },
     { "SIO1",         0xC0820100, 0xC08201FF, eos_handle_sio, 1 },
@@ -3752,12 +3754,46 @@ unsigned int eos_handle_uart(unsigned int parm, unsigned int address, unsigned c
     static int enable_tio_interrupt = 0;
     static int flags = 0;
 
-    if ((address & ~0xF) == 0xC0270000)
+    // M3 code from https://bitbucket.org/Ant123/magiclantern_simplified/src/6282ca80824a6feadd89e0f9fc4bc494f80133e6/contrib/qemu/eos/eos.c#lines-4134
+    // presumably applies to other D6, at least M10
+    // breaks 200D
+    if (strcmp(eos_state->model->name, MODEL_NAME_EOSM3) == 0)
     {
-        /* this looks like a 16-char ring buffer (?!) */
-        static uint32_t uart_buf[16];
-        MMIO_VAR(uart_buf[address & 0xF]);
-        goto end;
+        if ((address & ~0xFF) == 0xC0270000)
+        {
+            /* this looks like a 16-char ring buffer (?!) */
+            static uint32_t uart_buf[16];
+            // NOTE c&p from M3 code, will only do 0, unlike below which does any 0xf
+            if ((address & 0xFF) == 0)
+            {
+                MMIO_VAR(uart_buf[address & 0xFF]);
+                ret = 0x80000000;
+                goto end;
+            }
+
+            if ((address & 0xFF) >= 0x20)
+            {
+                //case 0x04:
+                msg = "Read char";
+                eos_state->uart.reg_st &= ~(ST_RX_RDY);
+                ret = eos_state->uart.reg_rx;
+                //break;
+                goto end;
+            }
+            MMIO_VAR(uart_buf[address & 0xF]);
+            goto end;
+        }
+    }
+    else
+    {
+        if ((address & ~0xF) == 0xC0270000)
+        {
+            /* this looks like a 16-char ring buffer (?!) */
+            static uint32_t uart_buf[16];
+            MMIO_VAR(uart_buf[address & 0xF]);
+            //goto end;
+            return ret;
+        }
     }
 
     switch(address & 0xFF)
@@ -4872,6 +4908,45 @@ unsigned int eos_handle_uart_dma(unsigned int parm, unsigned int address, unsign
     static uint32_t addr;
     static uint32_t count;
     static uint32_t status;
+
+    // from ant M3 https://bitbucket.org/Ant123/magiclantern_simplified/src/6282ca80824a6feadd89e0f9fc4bc494f80133e6/contrib/qemu/eos/eos.c#lines-5282
+    if (strcmp(eos_state->model->name, MODEL_NAME_EOSM3) == 0)
+    {
+        static uint32_t m3uart_count; // = 0xE0;
+        switch(address & 0xFF)
+        {
+            case 0xD4:
+                if(type & MODE_WRITE)
+                {
+                    msg = "Set M3 UART STATUS";
+                }
+                else
+                {
+                    msg = "Read M3 UART STATUS";
+
+                    if (m3uart_count == 0)
+                        ret = 0x00000004;
+                    else
+                        ret = 0x00000010;
+                }
+                break;
+
+            case 0xC4:
+                msg = "M3 UART recieve count";
+                m3uart_count--;
+                ret = m3uart_count;
+                break;
+
+            case 0xCC:
+                if(type & MODE_WRITE)
+                {
+                    msg = "Set M3 UART Count";
+                    m3uart_count = value;
+                }
+        }
+        io_log("Uart M3", address, type, value, ret, msg, 0, 0);
+        return ret;
+    }
 
     switch(address & 0x1F)
     {

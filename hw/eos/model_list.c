@@ -557,6 +557,7 @@ struct eos_model_desc eos_model_list[] = {
 // this avoids invalid write in zico initialization (zico_copy call fc537d16)
         .ram_extra_addr[1]      = 0x80A00000,
         .ram_extra_size[1]      = 0x00200000,
+        .uart_rx_interrupt      = 0xE7, // 101a fc0639b0 near "termLock" ref
     },
     {
         .name                   = MODEL_NAME_EOSM10,
