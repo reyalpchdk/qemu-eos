@@ -14,6 +14,7 @@ NAMES += hotblocks
 NAMES += howvec
 NAMES += hotpages
 NAMES += magiclantern
+NAMES += exechist
 
 SONAMES := $(addsuffix .so,$(addprefix lib,$(NAMES)))
 
