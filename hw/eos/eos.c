@@ -3435,7 +3435,9 @@ unsigned int eos_handle_gpio(unsigned int parm, unsigned int address, unsigned c
             msg = "MIC CONNECT";
             // A1100 this is related to startup key press (ffc3040c)
             if((strcmp(eos_state->model->name, MODEL_NAME_A1100) == 0) && ((address & 0xFFFF) == 0x134)) {
+                msg = "A1100 start key";
                 ret = 0;
+                break;
             } else {
                 ret = 1;
             }
@@ -3481,6 +3483,7 @@ unsigned int eos_handle_gpio(unsigned int parm, unsigned int address, unsigned c
             } else if (strcmp(eos_state->model->name, MODEL_NAME_A1100) == 0 ) {
                 msg = "PB startup";       /* indicates play switch startup ffc3040c */
                 ret = 1;
+                break;
             } else {
                 msg = "HDMI CONNECT";       /* 600D; likely other D4 models */
                 ret = 0;
