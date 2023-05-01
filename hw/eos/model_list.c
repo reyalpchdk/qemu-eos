@@ -42,6 +42,7 @@ struct eos_model_desc eos_model_list[] = {
         .imgpowdet_register_bit = 0x00000001,   /* register and bit checked to print that message */
         .imgpowdet_interrupt    = 0x56,         /* only used on 1000D? */
         .max_cpus               = 1,
+        .bootflag_type          = BOOTFLAG_TYPE_ROM,
     },
     {
         .name                   = MODEL_NAME_5D,
@@ -130,6 +131,7 @@ struct eos_model_desc eos_model_list[] = {
         .imgpowdet_register_bit = 0x00000001,   /* register and bit checked to print that message */
         .imgpowdet_interrupt    = 0x52,         /* interrupt registered when powering on the sensor */
         .max_cpus               = 1,
+        .bootflag_type          = BOOTFLAG_TYPE_ROM,
     },
     {
         .name                   = MODEL_NAME_50D,
@@ -261,6 +263,8 @@ struct eos_model_desc eos_model_list[] = {
         .sd_dma_interrupt       = 0x32, // gdb log "SdDmaInt"
         .rtc_cs_register        = 0xC0223010, // different from other cams, 0x800 set seems to indicate RTC selected
                                               // set in ffc2d6d0, cleared in ffc2d700
+        .bootflag_type          = BOOTFLAG_TYPE_GPIO_WORD,
+        .bootflags_addr         = 0xC0223024, // SD protect mmio, from kbd_read_keys_r2 ffc304f8
     },
 /*************************** DIGIC V **********************************/
     {
@@ -306,6 +310,7 @@ struct eos_model_desc eos_model_list[] = {
         .imgpowdet_register_bit = 0x00000001,   /* register and bit checked to print that message */
         .imgpowdet_interrupt    = 0x52,         /* interrupt registered when powering on the sensor */
         .max_cpus               = 1,
+        .bootflag_type          = BOOTFLAG_TYPE_ROM,
     },
     {
         .name                   = MODEL_NAME_5D3,
@@ -475,6 +480,7 @@ struct eos_model_desc eos_model_list[] = {
         .imgpowdet_register_bit = 0x00010000,   /* register and bit checked to print that message */
         .imgpowdet_interrupt    = 0xDA,         /* interrupt registered when powering on the sensor */
         .max_cpus               = 1,
+        .bootflag_type          = BOOTFLAG_TYPE_ROM,
     },
     {
         .name                   = MODEL_NAME_80D,
@@ -560,6 +566,7 @@ struct eos_model_desc eos_model_list[] = {
         .rom0_size              = 0x800000,     /* 8MB */
         .current_task_addr      = 0x803C,
         .card_led_address       = 0xD20B0994,
+        .bootflag_type          = BOOTFLAG_TYPE_NONE, /* should be GPIO_BIT, but needs key GPIOs implemented */
     },
     {
         .name                   = MODEL_NAME_EOSM10,
@@ -570,6 +577,7 @@ struct eos_model_desc eos_model_list[] = {
         .rom0_size              = 0x800000,     /* 8MB */
         .current_task_addr      = 0x803C,
         .card_led_address       = 0xD20B0994,   /* unknown, copied from M3 */
+        .bootflag_type          = BOOTFLAG_TYPE_NONE, /* should be GPIO_BIT, but needs key GPIOs implemented */
     },
 /*************************** DIGIC VII ********************************/
     {
@@ -603,6 +611,7 @@ struct eos_model_desc eos_model_list[] = {
         .imgpowdet_register_bit = 0x00010000,   /* register and bit checked to print that message */
         .imgpowdet_interrupt    = 0xDA,         /* interrupt registered when powering on the sensor */
         .max_cpus               = 2,
+        .bootflag_type          = BOOTFLAG_TYPE_ROM,
     },
     {
         .name                   = MODEL_NAME_200D,
@@ -680,6 +689,7 @@ struct eos_model_desc eos_model_list[] = {
         .sd_driver_interrupt    = 0xEE,         // M50: OK
         .sd_dma_interrupt       = 0xBE,
         .max_cpus               = 2,
+        .bootflag_type          = BOOTFLAG_TYPE_ROM,
     },
     {
         .name                   = MODEL_NAME_EOSM50,

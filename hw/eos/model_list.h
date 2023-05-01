@@ -48,6 +48,15 @@
 
 enum { ram_extra_array_len = 2 };
 
+enum
+{
+    BOOTFLAG_TYPE_NONE = 1,  /* boot option not implemented. Start at 1 because 0 means inherit default for digic gen */
+    BOOTFLAG_TYPE_ROM,       /* EOS style, in flash ROM */
+    BOOTFLAG_TYPE_GPIO_WORD, /* Most pre-digic 5 powershots, SD protect is LSB of dedicated GPIO word */
+    BOOTFLAG_TYPE_GPIO_BIT,  /* Most digic 5 and later powershots, SD protect is bit in key / switch GPIOs.
+                                Micro SD cams may used SD door */
+};
+
 struct eos_model_desc {
     const char * name;
 
@@ -113,11 +122,12 @@ struct eos_model_desc {
             uint32_t imgpowdet_register_bit;
             uint32_t imgpowdet_interrupt;
             uint32_t max_cpus;
+            uint32_t bootflag_type;
         };
         
         /* this must match the number of items in the above struct */
         /* note: you get a compile-time error if params[] is smaller than the struct */
-        uint32_t params[50 + ram_extra_array_len * 2];
+        uint32_t params[51 + ram_extra_array_len * 2];
     };
 } __attribute__((packed));
 

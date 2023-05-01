@@ -2033,13 +2033,23 @@ static void eos_init_common(void)
         eos_state->cpu0->env.thumb = 1;
     }
     
+    eos_state->boot_option = EOS_BOOT_DEFAULT;
     if (options)
     {
         /* fixme: reinventing the wheel */
-        if (strstr(options, "boot=1") || strstr(options, "boot=0"))
+        if(strstr(options, "boot=1"))
+        {
+            eos_state->boot_option = EOS_BOOT_ENABLE;
+        }
+        else if(strstr(options, "boot=0"))
+        {
+            eos_state->boot_option = EOS_BOOT_DISABLE;
+        }
+
+        if(eos_state->model->bootflag_type == BOOTFLAG_TYPE_ROM && eos_state->boot_option != EOS_BOOT_DEFAULT)
         {
             /* change the boot flag */
-            uint32_t flag = strstr(options, "boot=1") ? 0xFFFFFFFF : 0;
+            uint32_t flag = eos_state->boot_option == EOS_BOOT_ENABLE ? 0xFFFFFFFF : 0;
             fprintf(stderr, "Setting BOOTDISK flag to %X\n", flag);
             MEM_WRITE_ROM(eos_state->model->bootflags_addr + 4, (uint8_t*) &flag, 4);
         }
@@ -3157,6 +3167,16 @@ unsigned int eos_handle_gpio(unsigned int parm, unsigned int address, unsigned c
         return eos_handle_imgpowdet(parm, address, type, value);
     }
 
+    /*
+    powershot style boot option common on pre-digic 5 cams,
+    SD protect is LSB of a dedicated GPIO word
+    */
+    if(eos_state->model->bootflag_type == BOOTFLAG_TYPE_GPIO_WORD && address == eos_state->model->bootflags_addr)
+    {
+        /* not logged, typically polled every 10ms */
+        return (eos_state->boot_option == EOS_BOOT_ENABLE)?1:0;
+    }
+
     switch (address & 0xFFFF)
     {
         case 0x0068:
@@ -3369,7 +3389,6 @@ unsigned int eos_handle_gpio(unsigned int parm, unsigned int address, unsigned c
             msg = "SD detect";
             ret = 0;
             break;
-
 
         /* 100D */
         //case 0xC0DC: // [0xC022C0DC] <- 0x83DC00  : GPIO_12

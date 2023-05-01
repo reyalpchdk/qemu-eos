@@ -246,6 +246,12 @@ typedef struct
     uint32_t def_enb;
 } PreproState;
 
+typedef enum {
+    EOS_BOOT_DEFAULT, /* do not modify boot flag */
+    EOS_BOOT_ENABLE,  /* enable autoexec.bin / diskboot.bin */
+    EOS_BOOT_DISABLE, /* disable autoexec.bin / diskboot.bin */
+} eos_boot_option;
+
 typedef struct EOSState
 {
     /*< private >*/
@@ -323,6 +329,7 @@ typedef struct EOSState
     QEMUTimer *interrupt_timer;
     QEMUTimer multicore_timer_01;
     QEMUTimer multicore_timer_02;
+    eos_boot_option boot_option;
 } EOSState;
 extern EOSState *eos_state;
 
